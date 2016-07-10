@@ -28,11 +28,11 @@ include_directories(
 )
 
 ## Declare a C++ executable
-add_executable(fake_lidar src/FakeLidar.cpp)
+add_executable(fake_lidar src/fake_lidar.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(fake_lidar FakeLidar_cpp)
+add_dependencies(fake_lidar fake_lidar_cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(fake_lidar ${catkin_LIBRARIES})

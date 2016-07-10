@@ -4,7 +4,7 @@
 
 	<!-- Publish static transform from lidar to base_footprint -->
 	<node pkg="tf" type="static_transform_publisher" name="lidar" 
-		args="-0.5 0 -1 0 0 0 /fake_lidar_frame /base_link 10"/>
+		args="-0.3 0 -0.4 0 0 0 /fake_lidar_frame /base_link 10"/>
 
 	<!-- Run Rviz -->
 	<node name="rviz" pkg="rviz" type="rviz" 

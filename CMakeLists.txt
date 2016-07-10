@@ -37,7 +37,6 @@ add_dependencies(fake_lidar fake_lidar_cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(fake_lidar ${catkin_LIBRARIES})
 
-
 ## Enable C++11
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 

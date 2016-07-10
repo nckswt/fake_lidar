@@ -31,14 +31,14 @@ void FakeLidar::update(){
 
     // Generate fake ranges and intensities
     for(unsigned int i = 0; i < num_readings; ++i){
-      ranges[i] = 1;
-      intensities[i] = 100;
+      ranges[i] = 0.5;
+      intensities[i] = 10000;
     }
 
     // Load msg with fake data
     sensor_msgs::LaserScan scan;
     scan.header.stamp = scan_time;
-    scan.header.frame_id = "fake_laser_frame";
+    scan.header.frame_id = "fake_lidar_frame";
     scan.angle_min = angle_min;
     scan.angle_max = angle_max;
     scan.angle_increment = angle_increment;

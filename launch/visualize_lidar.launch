@@ -1,0 +1,13 @@
+<launch>
+	<!-- Run Fake Lidar node -->
+	<node name="fake_lidar" pkg="fake_lidar" type="fake_lidar" />
+
+	<!-- Publish static transform from lidar to base_footprint -->
+	<node pkg="tf" type="static_transform_publisher" name="lidar" 
+		args="0 -0.5 -1 0 0 0 /fake_lidar_frame /base_footprint 10"/>
+
+	<!-- Run Rviz -->
+	<node name="rviz" pkg="rviz" type="rviz" 
+		args="-d $(find fake_lidar)/rviz_cfg/visualize_lidar.rviz" />
+
+</launch>

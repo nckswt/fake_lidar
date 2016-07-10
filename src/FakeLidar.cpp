@@ -1,28 +1,37 @@
 #include "FakeLidar.h"
 
-FakeLidar::FakeLidar(int argc, char **argv){
-    // Get publish_rate from args
-    message_buffer_size = 1000;
-    update_frequency = 10;
-
+FakeLidar::FakeLidar(){
     // Set up attributes
-    angle_min = -2 * M_PI / 3;  // -120 degrees in [rad]
-    angle_max = 2 * M_PI / 3;  // 120 degrees in [rad]
-    angle_increment = 1 * M_PI / 180;  // 1 degree in [rad]
-    time_increment = 1 / 10; // [s]
+    message_buffer_size = 1000;
+    update_frequency = 10; // []
+    angle_min = 0;  // [rad]
+    angle_max = 2 * M_PI;  // [rad]
+    angle_increment = 2 * M_PI / 360;  // 1 degree in [rad]
+    time_increment = 1 / update_frequency; // [s]
     range_min = 0.2; // [m]
-    range_max = 1.0; // [m]
-    num_readings = 1 + ((angle_max - angle_min) / angle_increment);  // 241 readings per scan
+    range_max = 1.5; // [m]
+    num_readings = 1 + ((angle_max - angle_min) / angle_increment);  // readings per scan
     ranges.reserve(num_readings);  // [m]
-    intensities.reserve(num_readings);  // device-specific 
+    intensities.reserve(num_readings);  // device-specific units
 
-    publisher = node.advertise<sensor_msgs::LaserScan>("fake_lidar_node", 1000);
-    loop_rate = new ros::Rate(10);  // Doesn't have default constructor
+    // Set up fake noise
+    means[0] = 0.0; means[1] = 0.0;
+    stds[0] = 0.01; stds[1] = 0.01;
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    generator = new std::default_random_engine(seed);
+    range_noise = new std::normal_distribution<float>(means[0], stds[0]);
+    intensity_noise = new std::normal_distribution<float>(means[1], stds[1]);
+
+    publisher = node.advertise<sensor_msgs::LaserScan>("fake_lidar_node", message_buffer_size);
+    loop_rate = new ros::Rate(update_frequency);
     return;
 }
 
 FakeLidar::~FakeLidar(){
     delete loop_rate;
+    delete generator;
+    delete range_noise;
+    delete intensity_noise;
     return;
 }
 
@@ -30,10 +39,8 @@ void FakeLidar::update(){
     ros::Time scan_time = ros::Time::now();
 
     // Generate fake ranges and intensities
-    for(unsigned int i = 0; i < num_readings; ++i){
-      ranges[i] = 0.5;
-      intensities[i] = 10000;
-    }
+    update_ranges();
+    update_intensities();
 
     // Load msg with fake data
     sensor_msgs::LaserScan scan;
@@ -42,7 +49,7 @@ void FakeLidar::update(){
     scan.angle_min = angle_min;
     scan.angle_max = angle_max;
     scan.angle_increment = angle_increment;
-    scan.time_increment = (1 / 10) / num_readings;
+    scan.time_increment = (1 / update_frequency) / num_readings;
     scan.range_min = range_min;
     scan.range_max = range_max;
 
@@ -61,9 +68,22 @@ void FakeLidar::update(){
     return;
 }
 
+void FakeLidar::update_ranges(){
+    for(unsigned int i = 0; i < num_readings; ++i){
+        ranges[i] = 1 + (*range_noise)(*generator);
+    }
+}
+
+void FakeLidar::update_intensities(){
+    for(unsigned int i = 0; i < num_readings; ++i){
+        intensities[i] = 1000 + (*intensity_noise)(*generator);
+    }
+}
+
+
 int main(int argc, char **argv){
     ros::init(argc, argv, "FakeLidar");
-    FakeLidar fake_lidar(argc, argv);
+    FakeLidar fake_lidar;
 
     while(ros::ok()){
         fake_lidar.update();

@@ -35,7 +35,7 @@ FakeLidar::FakeLidar()
 {
   // Set up attributes
   message_buffer_size = 1000;
-  update_frequency = 10;                                           // []
+  update_frequency = 10;                                           // [Hz]
   angle_min = 0;                                                   // [rad]
   angle_max = 2 * M_PI;                                            // [rad]
   angle_increment = 2 * M_PI / 360;                                // 1 degree in [rad]
